@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.PeixunxiangmuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.laoshi_id as laoshiId
+        ,a.peixunxiangmu_uuid_number as peixunxiangmuUuidNumber
+        ,a.peixunxiangmu_name as peixunxiangmuName
+        ,a.peixunxiangmu_gongsi as peixunxiangmuGongsi
+        ,a.peixunxiangmu_gongsi_address as peixunxiangmuGongsiAddress
+        ,a.peixunxiangmu_peixun_address as peixunxiangmuPeixunAddress
+        ,a.peixunxiangmu_types as peixunxiangmuTypes
+        ,a.peixunxiangmu_content as peixunxiangmuContent
+        ,a.peixun_kaishi_time as peixunKaishiTime
+        ,a.peixun_jieshu_time as peixunJieshuTime
+        ,a.peixunxiangmu_delete as peixunxiangmuDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.PeixunxiangmuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,laoshi.laoshi_name as laoshiName
+        ,laoshi.laoshi_phone as laoshiPhone
+        ,laoshi.laoshi_id_number as laoshiIdNumber
+        ,laoshi.laoshi_photo as laoshiPhoto
+        ,laoshi.laoshi_email as laoshiEmail
+
+        FROM peixunxiangmu  a
+        left JOIN laoshi laoshi ON a.laoshi_id = laoshi.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.laoshiId != null and params.laoshiId != ''">
+                and (
+                    a.laoshi_id = #{params.laoshiId}
+                )
+            </if>
+            <if test=" params.peixunxiangmuUuidNumber != '' and params.peixunxiangmuUuidNumber != null and params.peixunxiangmuUuidNumber != 'null' ">
+                and a.peixunxiangmu_uuid_number like CONCAT('%',#{params.peixunxiangmuUuidNumber},'%')
+            </if>
+            <if test=" params.peixunxiangmuName != '' and params.peixunxiangmuName != null and params.peixunxiangmuName != 'null' ">
+                and a.peixunxiangmu_name like CONCAT('%',#{params.peixunxiangmuName},'%')
+            </if>
+            <if test=" params.peixunxiangmuGongsi != '' and params.peixunxiangmuGongsi != null and params.peixunxiangmuGongsi != 'null' ">
+                and a.peixunxiangmu_gongsi like CONCAT('%',#{params.peixunxiangmuGongsi},'%')
+            </if>
+            <if test=" params.peixunxiangmuGongsiAddress != '' and params.peixunxiangmuGongsiAddress != null and params.peixunxiangmuGongsiAddress != 'null' ">
+                and a.peixunxiangmu_gongsi_address like CONCAT('%',#{params.peixunxiangmuGongsiAddress},'%')
+            </if>
+            <if test=" params.peixunxiangmuPeixunAddress != '' and params.peixunxiangmuPeixunAddress != null and params.peixunxiangmuPeixunAddress != 'null' ">
+                and a.peixunxiangmu_peixun_address like CONCAT('%',#{params.peixunxiangmuPeixunAddress},'%')
+            </if>
+            <if test="params.peixunxiangmuTypes != null and params.peixunxiangmuTypes != ''">
+                and a.peixunxiangmu_types = #{params.peixunxiangmuTypes}
+            </if>
+            <if test=" params.peixunxiangmuContent != '' and params.peixunxiangmuContent != null and params.peixunxiangmuContent != 'null' ">
+                and a.peixunxiangmu_content like CONCAT('%',#{params.peixunxiangmuContent},'%')
+            </if>
+            <if test=" params.peixunKaishiTimeStart != '' and params.peixunKaishiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.peixun_kaishi_time) >= UNIX_TIMESTAMP(#{params.peixunKaishiTimeStart}) ]]>
+            </if>
+            <if test=" params.peixunKaishiTimeEnd != '' and params.peixunKaishiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.peixun_kaishi_time) <= UNIX_TIMESTAMP(#{params.peixunKaishiTimeEnd}) ]]>
+            </if>
+            <if test=" params.peixunJieshuTimeStart != '' and params.peixunJieshuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.peixun_jieshu_time) >= UNIX_TIMESTAMP(#{params.peixunJieshuTimeStart}) ]]>
+            </if>
+            <if test=" params.peixunJieshuTimeEnd != '' and params.peixunJieshuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.peixun_jieshu_time) <= UNIX_TIMESTAMP(#{params.peixunJieshuTimeEnd}) ]]>
+            </if>
+            <if test="params.peixunxiangmuDeleteStart != null and params.peixunxiangmuDeleteStart != ''">
+                <![CDATA[  and a.peixunxiangmu_delete >= #{params.peixunxiangmuDeleteStart}   ]]>
+            </if>
+            <if test="params.peixunxiangmuDeleteEnd != null and params.peixunxiangmuDeleteEnd != ''">
+                <![CDATA[  and a.peixunxiangmu_delete <= #{params.peixunxiangmuDeleteEnd}   ]]>
+            </if>
+             <if test="params.peixunxiangmuDelete != null and params.peixunxiangmuDelete != ''">
+                and a.peixunxiangmu_delete = #{params.peixunxiangmuDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断老师的id不为空 -->
+            <if test=" params.laoshiIdNotNull != '' and params.laoshiIdNotNull != null and params.laoshiIdNotNull != 'null' ">
+                and a.laoshi_id IS NOT NULL
+            </if>
+            <if test=" params.laoshiName != '' and params.laoshiName != null and params.laoshiName != 'null' ">
+                and laoshi.laoshi_name like CONCAT('%',#{params.laoshiName},'%')
+            </if>
+            <if test=" params.laoshiPhone != '' and params.laoshiPhone != null and params.laoshiPhone != 'null' ">
+                and laoshi.laoshi_phone like CONCAT('%',#{params.laoshiPhone},'%')
+            </if>
+            <if test=" params.laoshiIdNumber != '' and params.laoshiIdNumber != null and params.laoshiIdNumber != 'null' ">
+                and laoshi.laoshi_id_number like CONCAT('%',#{params.laoshiIdNumber},'%')
+            </if>
+            <if test=" params.laoshiEmail != '' and params.laoshiEmail != null and params.laoshiEmail != 'null' ">
+                and laoshi.laoshi_email like CONCAT('%',#{params.laoshiEmail},'%')
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
